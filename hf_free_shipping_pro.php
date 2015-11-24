@@ -652,7 +652,7 @@ class hf_free_shipping_pro extends Module
 								$smarty->assign('title_free', $this->l('See product description for conditions'));
 								$smarty->assign('conditions', 'withConds');
 								return ($this->display(__FILE__, 'hf_free_shipping_pro_list.tpl'));
-								continue count($aux);
+								//continue count($aux);
 							}//elseif($aux[$i]['fixed']!='')
 							//	return '';
 						}
@@ -691,7 +691,7 @@ class hf_free_shipping_pro extends Module
 										$smarty->assign('title_free', $this->l('See product description for conditions'));
 										$smarty->assign('conditions', 'withConds');
 										return ($this->display(__FILE__, 'hf_free_shipping_pro_list.tpl'));
-										continue count($cats);
+										//continue count($cats);
 									}
 								}
 							}else{
@@ -701,7 +701,7 @@ class hf_free_shipping_pro extends Module
 										$smarty->assign('title_free', $this->l('See product description for conditions'));
 										$smarty->assign('conditions', 'withConds');
 										return ($this->display(__FILE__, 'hf_free_shipping_pro_list.tpl'));
-										continue count($aux);
+										//continue count($aux);
 									}//elseif($aux[0]['fixed']!='')
 									//	return '';
 								}
@@ -737,7 +737,7 @@ class hf_free_shipping_pro extends Module
 								}else{
 									$smarty->assign('title_free', $this->l('See product description for conditions'));
 									return ($this->display(__FILE__, 'hf_free_shipping_pro_list.tpl'));
-									continue count($cats);
+									//continue count($cats);
 								}
 							}
 						}else{
@@ -745,7 +745,7 @@ class hf_free_shipping_pro extends Module
 								if (intval($aux[$j]['free'])!=0 || (intval($aux[$j]['price'])!=0 && $aux[0]['price']=='')){
 									$smarty->assign('title_free', $this->l('See product description for conditions'));
 									return ($this->display(__FILE__, 'hf_free_shipping_pro_list.tpl'));
-									continue count($aux);
+									//continue count($aux);
 								}//elseif($aux[0]['fixed']!='')
 								//	return '';
 							}
@@ -784,7 +784,7 @@ class hf_free_shipping_pro extends Module
 								$smarty->assign('title_free', $this->l('See product description for conditions'));
 								$smarty->assign('conditions', 'withConds');
 								return ($this->display(__FILE__, 'hf_free_shipping_pro_list.tpl'));
-								continue count($aux);
+								//continue count($aux);
 							}
 						}
 					}else{
@@ -793,7 +793,7 @@ class hf_free_shipping_pro extends Module
 								$smarty->assign('title_free', $this->l('See product description for conditions'));
 								$smarty->assign('conditions', 'withConds');
 								return ($this->display(__FILE__, 'hf_free_shipping_pro_list.tpl'));
-								continue count($aux);
+								//continue count($aux);
 							}
 						}
 					}
@@ -826,7 +826,7 @@ class hf_free_shipping_pro extends Module
 								$smarty->assign('title_free', $this->l('See product description for conditions'));
 								$smarty->assign('conditions', 'withConds');
 								return ($this->display(__FILE__, 'hf_free_shipping_pro_list.tpl'));
-								continue count($aux);
+								//continue count($aux);
 							}
 						}
 					}else{
@@ -835,7 +835,7 @@ class hf_free_shipping_pro extends Module
 								$smarty->assign('title_free', $this->l('See product description for conditions'));
 								$smarty->assign('conditions', 'withConds');
 								return ($this->display(__FILE__, 'hf_free_shipping_pro_list.tpl'));
-								continue count($aux);
+								//continue count($aux);
 							}
 						}
 					}
