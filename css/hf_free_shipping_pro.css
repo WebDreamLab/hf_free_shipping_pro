@@ -1,0 +1,15 @@
+/* PRODUCT TEMPLATE*/
+#pb-right-column { position:relative; }
+.hffs_block { font-size:1px; text-indent:-1000px; height:36px; width:50px; position:absolute; top:10px; left:10px; background-image:url(../img/free_shipping.png); }
+.withConds { background-image:url(../img/free_shipping_withconds.png); }
+.hffs_product_conds {}
+.hffs_product_free {}
+
+/* LIST TEMPLATE */
+.ajax_block_product { position:relative; }
+#featured-products_block_center .hffs_block { top:140px; left:5px; }
+
+/*SHOPPING CART REMAINING AMOUNT*/
+.hffs_shcman {}
+.hffs_shcsup {}
+.hffs_shccat {}
