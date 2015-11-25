@@ -12,6 +12,7 @@ class hf_free_shipping_pro extends Module
 		$this->version = 1.0;
 		$this->author = 'hfModules';
 		$this->module_key = '57c723af140befd0249df622dbf6d2f9';
+		$this->need_instance = 1;
 
 		parent::__construct();
 
@@ -98,7 +99,7 @@ class hf_free_shipping_pro extends Module
 			!Db::getInstance()->Execute($sql7) OR
 			!Db::getInstance()->Execute($sql8) OR
 			!Db::getInstance()->Execute('insert into `'._DB_PREFIX_.'hf_free_shipping_pro_carriers` select id_carrier, -1, -1 from  `'._DB_PREFIX_.'carrier` where `deleted`=0 and `active`=1') OR
-			!$this->registerHook('backOfficeFooter') OR
+			!$this->registerHook('displayBackOfficeFooter') OR
 			!$this->registerHook('header') OR
 			!$this->registerHook('extraLeft') OR
 			!$this->registerHook('shoppingCart') OR
@@ -619,6 +620,9 @@ class hf_free_shipping_pro extends Module
 		global $smarty;
 		global $cookie;
 		global $cart;
+		$cart = new Cart($this->context->cart->id);
+		$smarty = $this->context->smarty;
+		$cookie = $this->context->cookie;
 		$categories=array();
 		$suppliers=array();
 		$manufacturers=array();
@@ -856,18 +860,18 @@ class hf_free_shipping_pro extends Module
 		//}
 	}
 	
-	function hookBackOfficeFooter($params)
+	function hookDisplayBackOfficeFooter($params)
 	{
 		global $cookie;
+
+		$cookie = $this->context->cookie;
 		$iso = Db::getInstance()->getValue('SELECT iso_code FROM '._DB_PREFIX_.'lang WHERE `id_lang` = '.(int)($cookie->id_lang));
-		if ((Tools::getValue('tab')=='AdminCatalog' && Tools::getValue('id_product')!='')||
-		(Tools::getValue('tab')=='AdminManufacturers' && Tools::getValue('id_manufacturer')!='') ||
-		(Tools::getValue('tab')=='AdminSuppliers' && Tools::getValue('id_supplier')!='')||
-		(Tools::getValue('tab')=='AdminCatalog' && Tools::getValue('id_category')!='')){
-			//echo '<script type="text/javascript" src="'.__PS_BASE_URI__.'js/jquery/jquery-ui-1.8.10.custom.min.js"></script>';
-			echo '<script type="text/javascript" src="'.__PS_BASE_URI__.'js/jquery/datepicker/jquery-ui-personalized-1.6rc4.packed.js"></script>';
-			if ($iso != 'en')
-				echo '<script type="text/javascript" src="'.__PS_BASE_URI__.'js/jquery/datepicker/ui/i18n/ui.datepicker-'.$iso.'.js"></script>';
+		if ((Tools::getValue('controller')=='AdminProducts' && Tools::getValue('id_product')!='')||
+		(Tools::getValue('controller')=='AdminManufacturers' && Tools::getValue('id_manufacturer')!='') ||
+		(Tools::getValue('controller')=='AdminSuppliers' && Tools::getValue('id_supplier')!='')||
+		(Tools::getValue('controller')=='AdminCategories' && Tools::getValue('id_category')!='')){
+			echo '<script type="text/javascript" src="'.__PS_BASE_URI__.'js/jquery/ui/jquery.ui.datepicker.min.js"></script>';
+
 			echo '<script language="javascript" type="text/javascript" src="'.($this->_path).'hf_free_shipping_pro.js.php?id_product='.intval(Tools::getValue('id_product')).'&id_category='.intval(Tools::getValue('id_category')).'&id_manufacturer='.intval(Tools::getValue('id_manufacturer')).'&id_supplier='.intval(Tools::getValue('id_supplier')).'&token='.intval(Tools::getValue('token')).'&ap='.dirname($_SERVER['PHP_SELF']).'&id_lang='.$cookie->id_lang.'"></script>';
 		}
 	}
@@ -879,6 +883,9 @@ class hf_free_shipping_pro extends Module
 	
 	public function hookExtraLeft(){
 		global $smarty, $cookie;
+		$cart = new Cart($this->context->cart->id);
+		$smarty = $this->context->smarty;
+		$cookie = $this->context->cookie;
 		$vec=$this->isFree(intval(Tools::getValue('id_product')), true);
 		if (count($vec)==3){
 			if ((count($vec['cats'])>0 || count($vec['mans'])>0 || count($vec['sups'])>0)){
@@ -906,7 +913,11 @@ class hf_free_shipping_pro extends Module
 	}
 	
 	public function hookShoppingCart(){
-		global $cart, $cookie, $smarty;
+		//global $cart, $cookie, $smarty;
+
+		$cart = new Cart($this->context->cart->id);
+		$smarty = $this->context->smarty;
+		$cookie = $this->context->cookie;
 		
 		$return='';
 		
