@@ -27,10 +27,10 @@
 
 class Carrier extends CarrierCore
 {
-	public static function getCarriersForOrder($id_zone, $groups = NULL)
+	public static function getCarriersForOrder($id_zone, $groups = NULL, $cart = NULL, &$error = Array())
 	{
 		global $cookie, $cart;
-		
+
 		$freeProducts=$cart->freeProducts();
 
 		if (is_array($groups) AND !empty($groups))
@@ -70,7 +70,7 @@ class Carrier extends CarrierCore
 					}
 				}
 			}
-			
+
 			$row['name'] = (strval($row['name']) != '0' ? $row['name'] : Configuration::get('PS_SHOP_NAME'));
 			$row['price'] = ($shippingMethod == Carrier::SHIPPING_METHOD_FREE ? 0 : $cart->getOrderShippingCost((int)$row['id_carrier']));
 			$row['price_tax_exc'] = ($shippingMethod == Carrier::SHIPPING_METHOD_FREE ? 0 : $cart->getOrderShippingCost((int)$row['id_carrier'], false));

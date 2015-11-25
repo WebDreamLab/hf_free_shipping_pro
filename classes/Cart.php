@@ -37,10 +37,11 @@ class Cart extends CartCore
 	protected $_fixed_products;
 	protected $_id_products_NF='';
 	protected $_id_products_FX='';
+	public $my_var = 123;
 
-	function getOrderShippingCost($id_carrier = NULL, $useTax = true)
-    {
-	//error_reporting(E_ALL);
+	function getOrderShippingCost($id_carrier = NULL, $useTax = true,  Country $default_country = NULL, $product_list = NULL)
+	{
+		//error_reporting(E_ALL);
 //ini_set('display_errors', '1');
 
 		global $defaultCountry;
@@ -52,7 +53,7 @@ class Cart extends CartCore
 		// Checking discounts in cart
 		$products = $this->getProducts();
 		$discounts = $this->getDiscounts(true);
-		
+
 		if ($discounts)
 			foreach ($discounts AS $id_discount)
 				if ($id_discount['id_discount_type'] == 3)
@@ -76,14 +77,14 @@ class Cart extends CartCore
 
 		// Order total in default currency without fees
 		$order_total = $this->getOrderTotal(true, Cart::ONLY_PRODUCTS_WITHOUT_SHIPPING);
-		
+
 		// Start with shipping cost at 0
-        $shipping_cost = 0;
+		$shipping_cost = 0;
 
 		// If no product added, return 0
 		if ($order_total <= 0 AND !(int)(self::getNbProducts($this->id)))
 			return $shipping_cost;
-		
+
 		// Get id zone
 		if (isset($this->id_address_delivery)
 			AND $this->id_address_delivery
@@ -96,7 +97,7 @@ class Cart extends CartCore
 				$defaultCountry = new Country(Configuration::get('PS_COUNTRY_DEFAULT'), Configuration::get('PS_LANG_DEFAULT'));
 			$id_zone = (int)$defaultCountry->id_zone;
 		}
-		
+
 		// If no carrier, select default one
 		if (!$id_carrier)
 			$id_carrier = $this->id_carrier;
@@ -105,11 +106,11 @@ class Cart extends CartCore
 			$id_carrier = '';
 
 		if (empty($id_carrier) && $this->isCarrierInRange(Configuration::get('PS_CARRIER_DEFAULT'), $id_zone))
-				$id_carrier = (int)(Configuration::get('PS_CARRIER_DEFAULT'));
+			$id_carrier = (int)(Configuration::get('PS_CARRIER_DEFAULT'));
 
 		//save id_zone and id_carrier
 		$this->_id_zone=$id_zone;
-		$this->_id_carrier=$id_carrier;	
+		$this->_id_carrier=$id_carrier;
 
 		if (empty($id_carrier))
 		{
@@ -135,7 +136,7 @@ class Cart extends CartCore
 
 				// Get only carriers that are compliant with shipping method
 				if (($carrier->getShippingMethod() == Carrier::SHIPPING_METHOD_WEIGHT AND $carrier->getMaxDeliveryPriceByWeight($id_zone) === false)
-				OR ($carrier->getShippingMethod() == Carrier::SHIPPING_METHOD_PRICE AND $carrier->getMaxDeliveryPriceByPrice($id_zone) === false))
+					OR ($carrier->getShippingMethod() == Carrier::SHIPPING_METHOD_PRICE AND $carrier->getMaxDeliveryPriceByPrice($id_zone) === false))
 				{
 					unset($result[$k]);
 					continue ;
@@ -146,7 +147,7 @@ class Cart extends CartCore
 				{
 					// Get only carriers that have a range compatible with cart
 					if (($carrier->getShippingMethod() == Carrier::SHIPPING_METHOD_WEIGHT AND (!Carrier::checkDeliveryPriceByWeight($row['id_carrier'], $this->getTotalWeight(), $id_zone)))
-					OR ($carrier->getShippingMethod() == Carrier::SHIPPING_METHOD_PRICE AND (!Carrier::checkDeliveryPriceByPrice($row['id_carrier'], $this->getOrderTotal(true, Cart::BOTH_WITHOUT_SHIPPING), $id_zone, (int)($this->id_currency)))))
+						OR ($carrier->getShippingMethod() == Carrier::SHIPPING_METHOD_PRICE AND (!Carrier::checkDeliveryPriceByPrice($row['id_carrier'], $this->getOrderTotal(true, Cart::BOTH_WITHOUT_SHIPPING), $id_zone, (int)($this->id_currency)))))
 					{
 						unset($result[$k]);
 						continue ;
@@ -154,7 +155,7 @@ class Cart extends CartCore
 				}
 				//save id_carrier
 				$this->_id_carrier=$row['id_carrier'];
-				
+
 				if ($carrier->getShippingMethod() == Carrier::SHIPPING_METHOD_WEIGHT)
 				{
 					$shipping = $carrier->getDeliveryPriceByWeight($this->getTotalWeight(), $id_zone);
@@ -183,7 +184,7 @@ class Cart extends CartCore
 
 		//save  id_carrier
 		$this->_id_carrier=$id_carrier;
-		
+
 		//string with non free or fixed shipping id products
 		$this->_id_products_FX = '';
 		//delete elements with free shipping or fixed shipping amount
@@ -203,7 +204,7 @@ class Cart extends CartCore
 			$this->_free_products = $auxMS[4];
 			//fixed shipping products
 			$this->_fixed_products = $auxMS[5];
-		
+
 			$hfi=0;
 			while ($hfi<count($products)){
 				$cats=Product::getProductCategories($products[$hfi]['id_product']);
@@ -242,13 +243,13 @@ class Cart extends CartCore
 
 		// Order total for shipping
 		$shipping_order_total = $this->getShippingOrderTotal(true, Cart::ONLY_PRODUCTS_WITHOUT_SHIPPING);
-			
+
 		if (!isset(self::$_carriers[$id_carrier]))
 			self::$_carriers[$id_carrier] = new Carrier((int)($id_carrier), Configuration::get('PS_LANG_DEFAULT'));
 		$carrier = self::$_carriers[$id_carrier];
 		if (!Validate::isLoadedObject($carrier))
 			die(Tools::displayError('Fatal error: "no default carrier"'));
-        if (!$carrier->active)
+		if (!$carrier->active)
 			return $shipping_cost;
 
 		// Free fees if free carrier
@@ -257,7 +258,7 @@ class Cart extends CartCore
 
 		// Select carrier tax
 		if ($useTax AND !Tax::excludeTaxeOption())
-			 $carrierTax = Tax::getCarrierTaxRate((int)$carrier->id, (int)$this->{Configuration::get('PS_TAX_ADDRESS_TYPE')});
+			$carrierTax = Tax::getCarrierTaxRate((int)$carrier->id, (int)$this->{Configuration::get('PS_TAX_ADDRESS_TYPE')});
 
 		$configuration = Configuration::getMultiple(array('PS_SHIPPING_FREE_PRICE', 'PS_SHIPPING_HANDLING', 'PS_SHIPPING_METHOD', 'PS_SHIPPING_FREE_WEIGHT'));
 		// Free fees
@@ -275,22 +276,22 @@ class Cart extends CartCore
 		{
 			// Get id zone
 			if (
-		  isset($this->id_address_delivery)
-		  AND $this->id_address_delivery
-		  AND Customer::customerHasAddress($this->id_customer, $this->id_address_delivery)
-		)
+				isset($this->id_address_delivery)
+				AND $this->id_address_delivery
+				AND Customer::customerHasAddress($this->id_customer, $this->id_address_delivery)
+			)
 				$id_zone = Address::getZoneById((int)($this->id_address_delivery));
 			else
 				$id_zone = (int)$defaultCountry->id_zone;
 			if (($carrier->getShippingMethod() == Carrier::SHIPPING_METHOD_WEIGHT AND (!Carrier::checkDeliveryPriceByWeight($carrier->id, $this->getTotalWeight(), $id_zone)))
-					OR ($carrier->getShippingMethod() == Carrier::SHIPPING_METHOD_PRICE AND (!Carrier::checkDeliveryPriceByPrice($carrier->id, $this->getOrderTotal(true, Cart::BOTH_WITHOUT_SHIPPING), $id_zone, (int)($this->id_currency)))))
-					$shipping_cost += 0;
-				else if (count($products)>0){
-						if ($carrier->getShippingMethod() == Carrier::SHIPPING_METHOD_WEIGHT)
-							$shipping_cost += $carrier->getDeliveryPriceByWeight($this->getTotalWeight(), $id_zone);
-						else // by price
-							$shipping_cost += $carrier->getDeliveryPriceByPrice($shipping_order_total, $id_zone, (int)($this->id_currency));
-					 }
+				OR ($carrier->getShippingMethod() == Carrier::SHIPPING_METHOD_PRICE AND (!Carrier::checkDeliveryPriceByPrice($carrier->id, $this->getOrderTotal(true, Cart::BOTH_WITHOUT_SHIPPING), $id_zone, (int)($this->id_currency)))))
+				$shipping_cost += 0;
+			else if (count($products)>0){
+				if ($carrier->getShippingMethod() == Carrier::SHIPPING_METHOD_WEIGHT)
+					$shipping_cost += $carrier->getDeliveryPriceByWeight($this->getTotalWeight(), $id_zone);
+				else // by price
+					$shipping_cost += $carrier->getDeliveryPriceByPrice($shipping_order_total, $id_zone, (int)($this->id_currency));
+			}
 		}
 		else if (count($products)>0)
 		{
@@ -300,7 +301,7 @@ class Cart extends CartCore
 				$shipping_cost += $carrier->getDeliveryPriceByPrice($shipping_order_total, $id_zone, (int)($this->id_currency));
 
 		}
-		
+
 		// Adding handling charges
 		if (isset($configuration['PS_SHIPPING_HANDLING']) AND $carrier->shipping_handling AND count($products)>0)
 			$shipping_cost += (float)($configuration['PS_SHIPPING_HANDLING']);
@@ -327,7 +328,7 @@ class Cart extends CartCore
 			if ($shipping_cost === false)
 				return false;
 		}
-		
+
 		//apply fixed shipping cost per unit
 		$prodAux='';
 		if (isset($this->_fixed_products))
@@ -340,7 +341,7 @@ class Cart extends CartCore
 			}
 		if (isset($this->_category_fixed)){
 			$aux=Db::getInstance()->executeS("
-				select cp.`id_product` , c.`id_category`, cp.`quantity` 
+				select cp.`id_product` , c.`id_category`, cp.`quantity`
 				from `"._DB_PREFIX_."cart_product` cp
 				inner join `"._DB_PREFIX_."category_product` c on c.`id_product` = cp.`id_product`
 				where cp.`id_cart`=".intval($this->id)." and cp.`id_product` not in (0".$prodAux.") and cp.`id_product` in (0".$this->_id_products_FX.")");
@@ -353,57 +354,57 @@ class Cart extends CartCore
 
 		//fix the product total
 		$this->getProducts(true);
-		
+
 		// Apply tax
 		if (isset($carrierTax))
 			$shipping_cost *= 1 + ($carrierTax / 100);
 
 		return (float)(Tools::ps_round((float)($shipping_cost), 2));
-    }
-	
+	}
+
 	/**
-	* Return cart weight
-	*
-	* @return float Cart weight
-	*/
-	public function getTotalWeight()
+	 * Return cart weight
+	 *
+	 * @return float Cart weight
+	 */
+	public function getTotalWeight($products = NULL)
 	{
 		//if (!isset(self::$_totalWeight[$this->id]) || intval($this->_id_carrier)==0 || intval($this->_id_zone)==0)
 		//{
-			$result = Db::getInstance()->getRow('
+		$result = Db::getInstance()->getRow('
 			SELECT SUM((p.`weight` + pa.`weight`) * cp.`quantity`) as nb
 			FROM `'._DB_PREFIX_.'cart_product` cp
 			LEFT JOIN `'._DB_PREFIX_.'product` p ON cp.`id_product` = p.`id_product`
 			LEFT JOIN `'._DB_PREFIX_.'product_attribute` pa ON cp.`id_product_attribute` = pa.`id_product_attribute`
 			WHERE (cp.`id_product_attribute` IS NOT NULL AND cp.`id_product_attribute` != 0)
 			AND cp.`id_cart` = '.(int)($this->id).' and cp.`id_product` in (0'.$this->_id_products_NF.')');
-			$result2 = Db::getInstance()->getRow('
+		$result2 = Db::getInstance()->getRow('
 			SELECT SUM(p.`weight` * cp.`quantity`) as nb
 			FROM `'._DB_PREFIX_.'cart_product` cp
 			LEFT JOIN `'._DB_PREFIX_.'product` p ON cp.`id_product` = p.`id_product`
 			WHERE (cp.`id_product_attribute` IS NULL OR cp.`id_product_attribute` = 0)
 			AND cp.`id_cart` = '.(int)($this->id).' and cp.`id_product` in (0'.$this->_id_products_NF.')');
-			self::$_totalWeight[$this->id] = round((float)($result['nb']) + (float)($result2['nb']), 3);
+		self::$_totalWeight[$this->id] = round((float)($result['nb']) + (float)($result2['nb']), 3);
 		//}
 		return self::$_totalWeight[$this->id];
 	}
-	
+
 	/**
-	* This function returns the total cart amount
-	*
-	* Possible values for $type:
-	* Cart::ONLY_PRODUCTS
-	* Cart::ONLY_DISCOUNTS
-	* Cart::BOTH
-	* Cart::BOTH_WITHOUT_SHIPPING
-	* Cart::ONLY_SHIPPING
-	* Cart::ONLY_WRAPPING
-	* Cart::ONLY_PRODUCTS_WITHOUT_SHIPPING
-	*
-	* @param boolean $withTaxes With or without taxes
-	* @param integer $type Total type
-	* @return float Order total
-	*/
+	 * This function returns the total cart amount
+	 *
+	 * Possible values for $type:
+	 * Cart::ONLY_PRODUCTS
+	 * Cart::ONLY_DISCOUNTS
+	 * Cart::BOTH
+	 * Cart::BOTH_WITHOUT_SHIPPING
+	 * Cart::ONLY_SHIPPING
+	 * Cart::ONLY_WRAPPING
+	 * Cart::ONLY_PRODUCTS_WITHOUT_SHIPPING
+	 *
+	 * @param boolean $withTaxes With or without taxes
+	 * @param integer $type Total type
+	 * @return float Order total
+	 */
 	public function getShippingOrderTotal($withTaxes = true, $type = Cart::BOTH)
 	{
 		if (!$this->id)
@@ -423,7 +424,7 @@ class Cart extends CartCore
 			$type = Cart::ONLY_PRODUCTS;
 
 		$products = $this->getProducts();
-		
+
 		//delete elements with free shipping
 		$hfi=0;
 		while ($hfi<count($products)){
@@ -433,7 +434,7 @@ class Cart extends CartCore
 			}else
 				$hfi++;
 		}
-		
+
 		$order_total = 0;
 		if (Tax::excludeTaxeOption())
 			$withTaxes = false;
@@ -445,13 +446,13 @@ class Cart extends CartCore
 				// Here taxes are computed only once the quantity has been applied to the product price
 				$price = Product::getPriceStatic((int)$product['id_product'], false, (int)$product['id_product_attribute'], 2, NULL, false, true, $product['cart_quantity'], false, (int)$this->id_customer ? (int)$this->id_customer : NULL, (int)$this->id, ($this->{Configuration::get('PS_TAX_ADDRESS_TYPE')}));
 
-                $total_ecotax = $product['ecotax'] * (int)$product['cart_quantity'];
+				$total_ecotax = $product['ecotax'] * (int)$product['cart_quantity'];
 				$total_price = $price * (int)$product['cart_quantity'];
 
 				if ($withTaxes)
 				{
-				   $total_price = ($total_price - $total_ecotax) * (1 + (float)(Tax::getProductTaxRate((int)$product['id_product'], (int)$this->{Configuration::get('PS_TAX_ADDRESS_TYPE')})) / 100);
-				   $total_ecotax = $total_ecotax * (1 + Tax::getProductEcotaxRate((int)$this->{Configuration::get('PS_TAX_ADDRESS_TYPE')}) / 100);
+					$total_price = ($total_price - $total_ecotax) * (1 + (float)(Tax::getProductTaxRate((int)$product['id_product'], (int)$this->{Configuration::get('PS_TAX_ADDRESS_TYPE')})) / 100);
+					$total_ecotax = $total_ecotax * (1 + Tax::getProductEcotaxRate((int)$this->{Configuration::get('PS_TAX_ADDRESS_TYPE')}) / 100);
 					$total_price = Tools::ps_round($total_price + $total_ecotax, 2);
 
 				}
@@ -517,11 +518,11 @@ class Cart extends CartCore
 								$shrunk = true;
 					}
 
-					$order_total_discount = 0;
-					if ($shrunk AND $order_total < (-$wrapping_fees - $order_total_products - $shipping_fees))
-						$order_total_discount = -$wrapping_fees - $order_total_products - $shipping_fees;
-					else
-						$order_total_discount = $order_total;
+				$order_total_discount = 0;
+				if ($shrunk AND $order_total < (-$wrapping_fees - $order_total_products - $shipping_fees))
+					$order_total_discount = -$wrapping_fees - $order_total_products - $shipping_fees;
+				else
+					$order_total_discount = $order_total;
 			}
 		}
 
@@ -533,7 +534,7 @@ class Cart extends CartCore
 			return Tools::ps_round((float)($order_total_discount), 2);
 		return Tools::ps_round((float)($order_total), 2);
 	}
-	
+
 	public function getShippingOrderTotalManuSupCat($withTaxes = true, $type = Cart::BOTH, $ret_amounts=false)
 	{
 		if (!$this->id)
@@ -553,7 +554,7 @@ class Cart extends CartCore
 			$type = Cart::ONLY_PRODUCTS;
 
 		$products = $this->getProducts();
-		
+
 		$manufacturers = array();
 		$arrRetMan = array();
 		$suppliers = array();
@@ -565,7 +566,7 @@ class Cart extends CartCore
 		$restAmountMan = array();
 		$restAmountSup = array();
 		$restAmountCat = array();
-		
+
 		$order_total = 0;
 		if (Tax::excludeTaxeOption())
 			$withTaxes = false;
@@ -577,13 +578,13 @@ class Cart extends CartCore
 				// Here taxes are computed only once the quantity has been applied to the product price
 				$price = Product::getPriceStatic((int)$product['id_product'], false, (int)$product['id_product_attribute'], 2, NULL, false, true, $product['cart_quantity'], false, (int)$this->id_customer ? (int)$this->id_customer : NULL, (int)$this->id, ($this->{Configuration::get('PS_TAX_ADDRESS_TYPE')}));
 
-                $total_ecotax = $product['ecotax'] * (int)$product['cart_quantity'];
+				$total_ecotax = $product['ecotax'] * (int)$product['cart_quantity'];
 				$total_price = $price * (int)$product['cart_quantity'];
 
 				if ($withTaxes)
 				{
-				   $total_price = ($total_price - $total_ecotax) * (1 + (float)(Tax::getProductTaxRate((int)$product['id_product'], (int)$this->{Configuration::get('PS_TAX_ADDRESS_TYPE')})) / 100);
-				   $total_ecotax = $total_ecotax * (1 + Tax::getProductEcotaxRate((int)$this->{Configuration::get('PS_TAX_ADDRESS_TYPE')}) / 100);
+					$total_price = ($total_price - $total_ecotax) * (1 + (float)(Tax::getProductTaxRate((int)$product['id_product'], (int)$this->{Configuration::get('PS_TAX_ADDRESS_TYPE')})) / 100);
+					$total_ecotax = $total_ecotax * (1 + Tax::getProductEcotaxRate((int)$this->{Configuration::get('PS_TAX_ADDRESS_TYPE')}) / 100);
 					$total_price = Tools::ps_round($total_price + $total_ecotax, 2);
 
 				}
@@ -721,12 +722,13 @@ class Cart extends CartCore
 				5=>$arrRetProdsFixed);
 		}
 	}
-	
+
 	public function freeProducts(){
-	
+
 		if (!$this->id)
 			return 0;
-		$type = (int)($type);
+		//$type = (int)($type);
+		$type =Cart::ONLY_SHIPPING;
 
 		//if (!in_array($type, array(Cart::ONLY_PRODUCTS, Cart::ONLY_DISCOUNTS, Cart::BOTH, Cart::BOTH_WITHOUT_SHIPPING, Cart::ONLY_SHIPPING, Cart::ONLY_WRAPPING, Cart::ONLY_PRODUCTS_WITHOUT_SHIPPING)))
 		//	die(Tools::displayError());
@@ -742,7 +744,7 @@ class Cart extends CartCore
 			$type = Cart::ONLY_PRODUCTS;
 
 		$products = $this->getProducts();
-		
+
 		$manufacturers = array();
 		$arrRetMan = array();
 		$suppliers = array();
@@ -754,11 +756,11 @@ class Cart extends CartCore
 		$restAmountMan = array();
 		$restAmountSup = array();
 		$restAmountCat = array();
-		
+
 		$order_total = 0;
 		if (Tax::excludeTaxeOption())
 			$withTaxes = false;
-			
+
 		foreach ($products AS $product)
 		{
 			if ($this->_taxCalculationMethod == PS_TAX_EXC)
@@ -767,13 +769,13 @@ class Cart extends CartCore
 				// Here taxes are computed only once the quantity has been applied to the product price
 				$price = Product::getPriceStatic((int)$product['id_product'], false, (int)$product['id_product_attribute'], 2, NULL, false, true, $product['cart_quantity'], false, (int)$this->id_customer ? (int)$this->id_customer : NULL, (int)$this->id, ($this->{Configuration::get('PS_TAX_ADDRESS_TYPE')}));
 
-                $total_ecotax = $product['ecotax'] * (int)$product['cart_quantity'];
+				$total_ecotax = $product['ecotax'] * (int)$product['cart_quantity'];
 				$total_price = $price * (int)$product['cart_quantity'];
 
 				if ($withTaxes)
 				{
-				   $total_price = ($total_price - $total_ecotax) * (1 + (float)(Tax::getProductTaxRate((int)$product['id_product'], (int)$this->{Configuration::get('PS_TAX_ADDRESS_TYPE')})) / 100);
-				   $total_ecotax = $total_ecotax * (1 + Tax::getProductEcotaxRate((int)$this->{Configuration::get('PS_TAX_ADDRESS_TYPE')}) / 100);
+					$total_price = ($total_price - $total_ecotax) * (1 + (float)(Tax::getProductTaxRate((int)$product['id_product'], (int)$this->{Configuration::get('PS_TAX_ADDRESS_TYPE')})) / 100);
+					$total_ecotax = $total_ecotax * (1 + Tax::getProductEcotaxRate((int)$this->{Configuration::get('PS_TAX_ADDRESS_TYPE')}) / 100);
 					$total_price = Tools::ps_round($total_price + $total_ecotax, 2);
 
 				}
@@ -862,7 +864,7 @@ class Cart extends CartCore
 		}
 
 		unset($aux);
-		
+
 		return false;
 	}
 }
