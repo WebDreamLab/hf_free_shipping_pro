@@ -2,11 +2,10 @@
 <module>
 	<name>hf_free_shipping_pro</name>
 	<displayName><![CDATA[Free, fixed or per amount shipping cost for products]]></displayName>
-	<version><![CDATA[1]]></version>
+	<version><![CDATA[1.0.0]]></version>
 	<description><![CDATA[Adds capability for select a free shipping or a fixed shipping cost per quantity.]]></description>
-	<author><![CDATA[hfModules]]></author>
-	<tab><![CDATA[front_office_features]]></tab>
+	<author><![CDATA[WebDreamLab.com]]></author>
+	<tab><![CDATA[shipping_logistics]]></tab>
 	<is_configurable>1</is_configurable>
 	<need_instance>1</need_instance>
-	<limited_countries></limited_countries>
 </module>
