@@ -122,31 +122,40 @@ class Hf_free_shipping_pro extends CarrierModule
 //				print_r($params);
 //			echo '</pre>';
 			$product_shipping_cost = 0;
-			$free_shipping_zone_product = true;
-			foreach ($products as $product) {
-				$result = Db::getInstance()->getValue('SELECT `price` FROM `'._DB_PREFIX_.'hf_free_shipping_pro_fixed` WHERE
+
+			if ($this->isFree($products, $id_zone))
+				return 0;
+			else {
+				foreach ($products as $product) {
+					$result = Db::getInstance()->getValue('SELECT `price` FROM `'._DB_PREFIX_.'hf_free_shipping_pro_fixed` WHERE
 					`id_product`='.$product['id_product'].' AND
 					`id_carrier`='.$id_carrier.' AND
 			  		`id_zone`='.$id_zone
-				);
-				if ($result && $result > $product_shipping_cost) {
-					$product_shipping_cost = $result;
+					);
+					if ($result && $result > $product_shipping_cost) {
+						$product_shipping_cost = $result;
+					}
 				}
-
-				$result = Db::getInstance()->getValue('SELECT `id_zone` FROM `'._DB_PREFIX_.'hf_free_shipping_pro_free` WHERE `id_product`='.$product['id_product']);
-				if (!$result || $result != $id_zone)
-					$free_shipping_zone_product = false;
 			}
 
 			if ($product_shipping_cost)
 				$shipping_cost = $product_shipping_cost;
-			elseif (!$product_shipping_cost && $free_shipping_zone_product)
-				$shipping_cost = 0;
 
 			return $shipping_cost;
 		}
 
 		return $shipping_cost;
+	}
+
+	public function isFree($products, $id_zone)
+	{
+		$is_free = true;
+		foreach ($products as $product) {
+			$result = Db::getInstance()->getValue('SELECT `id_zone` FROM `'._DB_PREFIX_.'hf_free_shipping_pro_free` WHERE `id_product`='.$product['id_product']);
+			if (!$result || $result != $id_zone)
+				$is_free = false;
+		}
+		return $is_free;
 	}
 
 	public function getOrderShippingCostExternal($params)
