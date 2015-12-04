@@ -112,6 +112,9 @@ class Hf_free_shipping_pro extends CarrierModule
 		if (Context::getContext()->customer->logged == true)
 		{
 			$id_address_delivery = Context::getContext()->cart->id_address_delivery;
+			if (!$id_address_delivery)
+				return $shipping_cost;
+
 			$address = new Address($id_address_delivery);
 			$id_zone = Address::getZoneById($address->id);
 
