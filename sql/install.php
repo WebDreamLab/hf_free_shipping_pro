@@ -26,7 +26,7 @@
 
 $sql = array();
 
-$sql[] = 'CREATE TABLE `'._DB_PREFIX_.'hf_free_shipping_pro_fixed` (
+$sql[] = 'CREATE TABLE IF NOT EXISTS `'._DB_PREFIX_.'hf_free_shipping_pro_fixed` (
 			  `id_product` int(11) NOT NULL,
 			  `id_carrier` int(11) NOT NULL,
 			  `id_zone` int(11) NOT NULL,
@@ -34,14 +34,14 @@ $sql[] = 'CREATE TABLE `'._DB_PREFIX_.'hf_free_shipping_pro_fixed` (
 			  PRIMARY KEY (`id_product`, `id_carrier`,`id_zone`)
 			) ENGINE='._MYSQL_ENGINE_.' DEFAULT CHARSET=utf8;';
 
-$sql[] = 'CREATE TABLE `'._DB_PREFIX_.'hf_free_shipping_pro_free` (
+$sql[] = 'CREATE TABLE IF NOT EXISTS `'._DB_PREFIX_.'hf_free_shipping_pro_free` (
 			  `id_product` int(11) NOT NULL,
 			  `id_zone` int(11) NOT NULL,
 			  PRIMARY KEY (`id_product`, `id_zone`)
 			) ENGINE='._MYSQL_ENGINE_.' DEFAULT CHARSET=utf8;';
 
 
-$sql[] = 'CREATE TABLE `'._DB_PREFIX_.'hf_free_shipping_pro_carriers` (
+$sql[] = 'CREATE TABLE IF NOT EXISTS `'._DB_PREFIX_.'hf_free_shipping_pro_carriers` (
 			  `id_carrier` int(11) NOT NULL,
 			  `show_not_free` tinyint(1) NOT NULL,
 			  `show_free` tinyint(1) NOT NULL,

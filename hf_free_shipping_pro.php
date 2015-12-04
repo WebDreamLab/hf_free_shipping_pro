@@ -66,7 +66,6 @@ class Hf_free_shipping_pro extends CarrierModule
 
 		$carriers = Carrier::getCarriers($this->context->language->id);
 
-
 		foreach ($carriers as $carrier)
 		{
 			$sql = 'INSERT INTO `'._DB_PREFIX_.'hf_free_shipping_pro_carriers`
@@ -76,6 +75,12 @@ class Hf_free_shipping_pro extends CarrierModule
 
 			if (!Db::getInstance()->execute($sql))
 				return false;
+
+			$carrier_to_update = new Carrier($carrier['id_carrier']);
+			$carrier_to_update->need_range = 1;
+			$carrier_to_update->shipping_external = true;
+			$carrier_to_update->external_module_name = $this->name;
+			$carrier_to_update->save();
 		}
 
 		return parent::install() &&
@@ -99,16 +104,43 @@ class Hf_free_shipping_pro extends CarrierModule
 
 	public function getOrderShippingCost($params, $shipping_cost)
 	{
+		return $shipping_cost;
+	}
+
+	public function getPackageShippingCost($id_carrier, $params, $shipping_cost, $products)
+	{
 		if (Context::getContext()->customer->logged == true)
 		{
 			$id_address_delivery = Context::getContext()->cart->id_address_delivery;
 			$address = new Address($id_address_delivery);
+			$id_zone = Address::getZoneById($address->id);
 
-			/**
-			 * Send the details through the API
-			 * Return the price sent by the API
-			 */
-			return 10;
+//			echo '<pre>';
+//				print_r($params);
+//			echo '</pre>';
+			$product_shipping_cost = 0;
+			$free_shipping_zone_product = true;
+			foreach ($products as $product) {
+				$result = Db::getInstance()->getValue('SELECT `price` FROM `'._DB_PREFIX_.'hf_free_shipping_pro_fixed` WHERE
+					`id_product`='.$product['id_product'].' AND
+					`id_carrier`='.$id_carrier.' AND
+			  		`id_zone`='.$id_zone
+				);
+				if ($result && $result > $product_shipping_cost) {
+					$product_shipping_cost = $result;
+				}
+
+				$result = Db::getInstance()->getValue('SELECT `id_zone` FROM `'._DB_PREFIX_.'hf_free_shipping_pro_free` WHERE `id_product`='.$product['id_product']);
+				if (!$result || $result != $id_zone)
+					$free_shipping_zone_product = false;
+			}
+
+			if ($product_shipping_cost)
+				$shipping_cost = $product_shipping_cost;
+			elseif (!$product_shipping_cost && $free_shipping_zone_product)
+				$shipping_cost = 0;
+
+			return $shipping_cost;
 		}
 
 		return $shipping_cost;

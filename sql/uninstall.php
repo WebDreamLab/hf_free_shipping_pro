@@ -32,13 +32,9 @@
 
 $sql = array();
 
-$sql[] = 'DROP TABLE IF EXISTS `'._DB_PREFIX_.'hf_free_shipping_pro`,
+$sql[] = 'DROP TABLE IF EXISTS
             `'._DB_PREFIX_.'hf_free_shipping_pro_fixed`,
             `'._DB_PREFIX_.'hf_free_shipping_pro_free`,
-            `'._DB_PREFIX_.'hf_free_shipping_pro_manufacturer`,
-            `'._DB_PREFIX_.'hf_free_shipping_pro_supplier`,
-            `'._DB_PREFIX_.'hf_free_shipping_pro_category`,
-            `'._DB_PREFIX_.'hf_free_shipping_pro_category_fixed`,
             `'._DB_PREFIX_.'hf_free_shipping_pro_carriers`
             ';
 
