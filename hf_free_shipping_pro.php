@@ -117,32 +117,32 @@ class Hf_free_shipping_pro extends CarrierModule
 
 			$address = new Address($id_address_delivery);
 			$id_zone = Address::getZoneById($address->id);
+		}
+		else
+		{
+			$defaultCountry = new Country(Configuration::get('PS_COUNTRY_DEFAULT'), Configuration::get('PS_LANG_DEFAULT'));
+			$id_zone = (int)$defaultCountry->id_zone;
+		}
 
-//			echo '<pre>';
-//				print_r($params);
-//			echo '</pre>';
-			$product_shipping_cost = 0;
+		$product_shipping_cost = 0;
 
-			if ($this->isFree($products, $id_zone))
-				return 0;
-			else {
-				foreach ($products as $product) {
-					$result = Db::getInstance()->getValue('SELECT `price` FROM `'._DB_PREFIX_.'hf_free_shipping_pro_fixed` WHERE
+		if ($this->isFree($products, $id_zone))
+			return 0;
+		else {
+			foreach ($products as $product) {
+				$result = Db::getInstance()->getValue('SELECT `price` FROM `'._DB_PREFIX_.'hf_free_shipping_pro_fixed` WHERE
 					`id_product`='.$product['id_product'].' AND
 					`id_carrier`='.$id_carrier.' AND
 			  		`id_zone`='.$id_zone
-					);
-					if ($result && $result > $product_shipping_cost) {
-						$product_shipping_cost = $result;
-					}
+				);
+				if ($result && $result > $product_shipping_cost) {
+					$product_shipping_cost = $result;
 				}
 			}
-
-			if ($product_shipping_cost)
-				$shipping_cost = $product_shipping_cost;
-
-			return $shipping_cost;
 		}
+
+		if ($product_shipping_cost)
+			$shipping_cost = $product_shipping_cost;
 
 		return $shipping_cost;
 	}
